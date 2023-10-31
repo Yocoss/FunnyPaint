@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Humorous Drawing App</title>
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            margin-right: 400px;
+        }
+
+        #canvasContainer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #colors {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #canvas {
+            border: 2px solid black;
+            width: 1000px;
+            height: 800px;
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+
+        #messageFrame {
+            position: fixed;
+            top: 10px;
+            right: 50px;
+            width: 400px;
+            height: 360px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #messageHeader {
+            background-color: #0078d4;
+            color: #fff;
+            padding: 10px;
+        }
+
+        #messageHeader h2 {
+            margin: 0;
+        }
+
+        #messageList {
+            height: 288px;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+
+        #messageList p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PAINT BUT FUNNY (on rigole bien)</h1>
+    <div id="canvasContainer">
+        <div id="colors">
+            <button class="color-button" style="background-color: #882f15;" data-color="#FF0000"></button>
+            <button class="color-button" style="background-color: #ff0000;" data-color="#FF0000"></button>
+            <button class="color-button" style="background-color: #ffff00;" data-color="#00FF00"></button>
+            <button class="color-button" style="background-color: #00ff00;" data-color="#FFFF00"></button>
+            <button class="color-button" style="background-color: #00ffff;" data-color="#FFFF00"></button>
+            <button class="color-button" style="background-color: #0000ff;" data-color="#0000FF"></button>
+            <button class="color-button" style="background-color: #800080;" data-color="#800080"></button>
+            <button class="color-button" style="background-color: #ffc0cb;" data-color="#FFA500"></button>
+            <button class="color-button" style="background-color: #808080;" data-color="#FFA500"></button>
+            <button class="color-button" style="background-color: #000000;" data-color="#FFA500"></button>
+            <button class="color-button" style="background-color: #ffffff;" data-color="#FFA500"></button>
+        </div>
+        <canvas id="canvas" width="1000" height="800"></canvas>
+    </div>
+
+    <button id="clearButton">Clear</button>
+    <button id="dontClearButton" onclick="changeButtonText()">Don't Clear</button>
+
+    <div id="messageFrame">
+        <div id="messageHeader">
+            <h2>Messages</h2>
+        </div>
+        <div id="messageList">
+            <p id="randomWord">Message d'ouverture</p>
+        </div>
+    </div>
+
+    <script>
+        const randomWords = ["Dessine une Poule","Dessine un Avion", "Dessine une Voiture", "Dessine une Banane", "Dessine un Chien", "Dessine un Chat", "Dessine une Maison", 
+        "Dessine un Arbre", "Dessine un Dé", "Dessine un skate", "Dessine une fleur", "Dessine la lune", "Dessine ce que tu veux je m'en branle en vrai"];
+
+        function getRandomOpeningMessage() {
+            const randomIndex = Math.floor(Math.random() * randomWords.length);
+            return randomWords[randomIndex];
+        }
+
+        const customMessages = ["J'aurai pas fait ça comme ça", "Oh pas mal ! (nan je déconne)", "Pas ouf ça", "Mdr ton trait il est pas droit t'as Parkinson chacal ?", "Je pense pas qu'il y ai de bonnes ou de mauvaise situations"
+        , "Tu dessines une bite ?", "Dessin très nul", "C'est moyen bof ça un peu", "C'est bon fait pas genre tu sais pas sélectionner une couleur", "Un peu tremblant ce trait bg", "Ça pique les yeux", "arrête le massacre", 
+        "essaye Windows + L ça améliorera ton dessin, trust me bro", "Hideux", "Ignoble", "Je vais te soulever", "Coca bien frais chacal (dsl panne d'inspi)", "Ta daronne elle boit du sprite sa mère", "Donne ton carnet de correspondance, faut que je vois tes parents",
+        "T'as déjà pensé à consulter ?", "Change de lunettes gros", "Nul!", "Petite astuce vite fait: arrête-toi", "Coucou Paulpi :)"];
+
+        function getRandomCustomMessage() {
+            const randomIndex = Math.floor(Math.random() * customMessages.length);
+            return customMessages[randomIndex];
+        }
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const clearButton = document.getElementById('clearButton');
+        const dontClearButton = document.getElementById('dontClearButton');
+        const colorButtons = document.querySelectorAll('.color-button');
+
+        const imageUrl = 'https://em-content.zobj.net/source/apple/354/pile-of-poo_1f4a9.png';
+        const predefinedImage = new Image();
+        predefinedImage.src = imageUrl;
+        var button = document.getElementById("dontClearButton");
+        var clicked = true;
+
+        function changeButtonText() {
+            if (clicked) {
+                button.innerHTML = "GG gros bg t'as trouvé le vrai bouton XPTDRR (on rigole bien)";
+            } else {
+            }
+            clicked = !clicked;
+        }
+
+        let drawing = false;
+        let lineWidth = 2;
+        let currentMessage = "";
+
+        const availableColors = [
+            "#882F15",
+            "#FF0000",
+            "#FFFF00",
+            "#00FF00",
+            "#00FFFF",
+            "#0000FF",
+            "#800080",
+            "#FFC0CB",
+            "#808080",
+            "#000000",
+            "#FFFFFF"
+        ];
+
+        let currentColor = getRandomColorFromArray(availableColors);
+
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+            lineWidth = Math.random() * 10;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+            currentMessage = getRandomCustomMessage();
+            const messageList = document.getElementById('messageList');
+            const messageParagraph = document.createElement('p');
+            messageParagraph.textContent = currentMessage;
+            messageList.appendChild(messageParagraph);
+        });
+
+        canvas.addEventListener('mousemove', draw);
+
+        dontClearButton.addEventListener('click', () => {
+            clearCanvas();
+            dontClearButton = "gg bg";
+        });
+
+        clearButton.addEventListener('click', () => {
+            const x = Math.random() * canvas.width - 100;
+            const y = Math.random() * canvas.height - 100;
+            const width = Math.random() * 300 + 25;
+            const scaleFactor = 0.9;
+            const height = width * scaleFactor;
+
+            ctx.drawImage(predefinedImage, x, y, width, height);
+        });
+
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentColor = getRandomColorFromArray(availableColors);
+            });
+        });
+
+        let lastX, lastY, deltaX, deltaY;
+
+        function draw(e) {
+            if (!drawing) return;
+
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = currentColor;
+
+            deltaX = (Math.random() - 0.5) * 20;
+            deltaY = (Math.random() - 0.5) * 20;
+
+            if (lastX && lastY) {
+                ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left + deltaX, e.clientY - canvas.getBoundingClientRect().top + deltaY);
+                ctx.stroke();
+            }
+
+            lastX = e.clientX - canvas.getBoundingClientRect().left + deltaX;
+            lastY = e.clientY - canvas.getBoundingClientRect().top + deltaY;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getRandomColorFromArray(colorArray) {
+            return colorArray[Math.floor(Math.random() * colorArray.length)];
+        }
+
+        // Mettre à jour le message d'ouverture
+        document.getElementById('randomWord').textContent = getRandomOpeningMessage();
+    </script>
+</body>
+</html>
